@@ -19,15 +19,15 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest) {
-        Order order = orderService.placeOrder(orderRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Order created successfully", order));
+    public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest){
+        ApiResponse<Order> orderApiResponse = orderService.placeOrder(orderRequest);
+        return ResponseEntity.status(orderApiResponse.getCode()).body(orderApiResponse);
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {
         List<Order> allOrders = orderService.getAllOrders();
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, "Orders found", allOrders));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,HttpStatus.OK, "Orders found", allOrders));
     }
 }
