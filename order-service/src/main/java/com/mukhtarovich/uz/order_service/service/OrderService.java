@@ -24,7 +24,7 @@ import java.util.UUID;
 @Transactional
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
 
     public ApiResponse<Order> placeOrder(OrderRequest orderRequest)  {
         Order order = new Order();
@@ -42,19 +42,18 @@ public class OrderService {
                 .map(OrderLIneItems::getSkuCode)
                 .toList();
 
-        InventoryResponse[] inventoryResponses = webClient
+        InventoryResponse[] inventoryResponses = webClientBuilder.build()
                 .get()
-                .uri("http://localhost:8082/api/inventory",
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
                 .block();
 
-        if (inventoryResponses == null || inventoryResponses.length == 0) {
-            return new ApiResponse<>(false,HttpStatus.NOT_FOUND,"Same product is not found",order);
+        if (inventoryResponses == null || inventoryResponses.length != skuCodes.size()) {
+            return new ApiResponse<>(false,HttpStatus.NOT_FOUND,"Same product is not found" ,order);
         }
         boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(InventoryResponse::isInStock);
-        log.error("allProductsInStock: {}", allProductsInStock);
 
         if (allProductsInStock) {
             orderRepository.save(order);

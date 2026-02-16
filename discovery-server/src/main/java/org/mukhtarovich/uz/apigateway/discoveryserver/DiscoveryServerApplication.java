@@ -1,4 +1,4 @@
-package org.mukhtarovich.uz.discoveryserver;
+package org.mukhtarovich.uz.apigateway.discoveryserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
