@@ -4,6 +4,8 @@ import com.mukhtarovich.uz.order_service.dto.ApiResponse;
 import com.mukhtarovich.uz.order_service.dto.OrderRequest;
 import com.mukhtarovich.uz.order_service.model.Order;
 import com.mukhtarovich.uz.order_service.service.OrderService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @CircuitBreaker(name = "inventory",fallbackMethod = "OrderFallBack")
+    @TimeLimiter(name = "inventory")
     public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest){
         ApiResponse<Order> orderApiResponse = orderService.placeOrder(orderRequest);
         return ResponseEntity.status(orderApiResponse.getCode()).body(orderApiResponse);
@@ -29,5 +33,10 @@ public class OrderController {
     public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {
         List<Order> allOrders = orderService.getAllOrders();
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,HttpStatus.OK, "Orders found", allOrders));
+    }
+    public ResponseEntity<ApiResponse<String>> OrderFallBack(OrderRequest orderRequest,RuntimeException runtimeException){
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, HttpStatus.INTERNAL_SERVER_ERROR, "Inventory service is doesn't worked", runtimeException.getMessage()));
     }
 }
