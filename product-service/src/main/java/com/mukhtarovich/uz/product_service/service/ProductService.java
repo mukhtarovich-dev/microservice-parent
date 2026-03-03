@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
- @Slf4j
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
 
@@ -40,7 +40,7 @@ public class ProductService {
                 .build();
     }
 
-    public ProductResponse updateProduct(String id, ProductRequest productRequest) {
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(
                         "Product not found with id: " + id

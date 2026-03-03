@@ -22,7 +22,6 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @CircuitBreaker(name = "inventory",fallbackMethod = "OrderFallBack")
-    @TimeLimiter(name = "inventory")
     public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest){
         ApiResponse<Order> orderApiResponse = orderService.placeOrder(orderRequest);
         return ResponseEntity.status(orderApiResponse.getCode()).body(orderApiResponse);

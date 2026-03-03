@@ -16,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class ProductController {
+
     private final ProductService productService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -32,7 +33,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable("id") String id, @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable("id") Long id, @RequestBody ProductRequest productRequest) {
         ProductResponse productResponse = productService.updateProduct(id, productRequest);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true, "Product updated successfully", productResponse));
     }

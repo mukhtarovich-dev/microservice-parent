@@ -1,16 +1,4 @@
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: mongodb
-    restart: always
-    ports:
-      - "${MONGO_PORT}:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
-      MONGO_INITDB_DATABASE: ${PRODUCT_SERVICE_DB_NAME}
-    volumes:
-      - ./Docker/db-data/data:/data/db
 
   mysql:
     image: mysql:8.3
@@ -24,3 +12,10 @@ services:
       - ./Docker/db-data/mysql-data:/var/lib/mysql
       - ./Docker/init.sql:/docker-entrypoint-initdb.d/mysql-init.sql
 
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+    container_name: zipkin
+    environment:
+      - STORAGE_TYPE=mem
+    ports:
+      - "${ZIPKIN_PORT}:9411"
