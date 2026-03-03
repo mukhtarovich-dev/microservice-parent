@@ -18,33 +18,22 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public Product createProduct(ProductRequest productRequest) {
-        Product product =  Product.builder()
-                .name(productRequest.getName())
-                .description(productRequest.getDescription())
-                .price(productRequest.getPrice())
-                .build();
+        Product product = Product.builder().name(productRequest.getName()).description(productRequest.getDescription()).price(productRequest.getPrice()).build();
         log.info("Product {} has been created", product.getId());
         return productRepository.save(product);
     }
 
-    public List<ProductResponse> getAllProducts(){
+    public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
         return products.stream().map(this::mapToProductResponse).toList();
     }
-    public ProductResponse mapToProductResponse(Product product){
-        return ProductResponse.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .build();
+
+    public ProductResponse mapToProductResponse(Product product) {
+        return ProductResponse.builder().id(product.getId()).name(product.getName()).description(product.getDescription()).price(product.getPrice()).build();
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found with id: " + id
-                ));
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
         product.setPrice(productRequest.getPrice());

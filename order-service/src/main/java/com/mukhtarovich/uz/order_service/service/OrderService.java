@@ -4,12 +4,14 @@ import com.mukhtarovich.uz.order_service.dto.ApiResponse;
 import com.mukhtarovich.uz.order_service.dto.InventoryResponse;
 import com.mukhtarovich.uz.order_service.dto.OrderLIneItemsDto;
 import com.mukhtarovich.uz.order_service.dto.OrderRequest;
+import com.mukhtarovich.uz.order_service.event.OrderPlaceEvent;
 import com.mukhtarovich.uz.order_service.model.Order;
 import com.mukhtarovich.uz.order_service.model.OrderLIneItems;
 import com.mukhtarovich.uz.order_service.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
+    private final KafkaTemplate<String, OrderPlaceEvent> kafkaTemplate;
 
     public ApiResponse<Order> placeOrder(OrderRequest orderRequest)  {
         Order order = new Order();
@@ -57,6 +60,7 @@ public class OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new OrderPlaceEvent(order.getOrderNumber()));
             return new ApiResponse<>(true, HttpStatus.CREATED,"Order created",order);
         } else {
             return new ApiResponse<>(false,HttpStatus.NOT_FOUND,"Product is not in stock",order);
